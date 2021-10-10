@@ -1,0 +1,149 @@
+# CS 6250 Summer 2021 - SDN Firewall Project with POX
+# build frodo-v21
+#
+# This file contains the rules for the firewall as specified in the Project Documentation.  
+#
+# Rule Format:
+# RuleNumber,Action,Source MAC,Destination MAC,Source IP,Destination IP,Protocol,Source Port,Destination Port,Comment/Note
+# RuleNumber = this is a rule number to help you track a particular rule - it is not used in the firewall implementation
+# Action = Block or Allow , Allow Rules need to take precedence over Block Rules
+# Source / Destination MAC address in form of xx:xx:xx:xx:xx:xx
+# Source / Destination IP Address in form of xxx.xxx.xxx.xxx/xx in CIDR notation
+# Protocol = integer IP protocol number per IANA (0-254)
+# Source / Destination Port = if Protocol is TCP or UDP, this is the Application Port Number per IANA
+# Comment/Note = this is for your use in tracking rules.
+#
+# Any field not being used for a match should have a '-' character as it's entry (except for RuleNumber/Comment)
+# Do not pad any of the entries (i.e., have a rule like:  1, Block, -, -,...)
+#
+# Warning:  For the IP address, you need to specify an appropriate network address
+# that matches the subnet mask you are using.  For instance, if you want to use a /16
+# subnet mask, then the IP address must be x.x.0.0.  For example, a proper address to 
+# reference a 192.168.10.x/24 network would be 192.168.10.0/24.  A single host
+# is addressed as a single IP address with a /32.
+#
+# Example Rules:
+1,Block,-,-,10.0.0.1/32,10.0.1.0/24,6,-,80,Block 10.0.0.1 from accessing a web server on the 10.0.1.0/24 network
+2,Allow,-,-,10.0.0.1/32,10.0.1.125/32,6,-,80,Allow 10.0.0.1 to access a web server on 10.0.1.125 overriding previous rule
+3,Allow,-,-,-,10.0.0.1/32,17,-,853,hq1 should be accessible to anyone (udp)
+4,Allow,-,-,-,10.0.0.1/32,6,-,853,hq1 should be accessible to anyone (tcp)
+5,Block,-,-,-,10.0.0.2/32,6,-,853,hq2 should only be accessible to the 5 corporate subnets (tcp)
+5,Allow,-,-,10.0.0.0/24,10.0.0.2/32,6,-,853,hq2 should only be accessible to the 5 corporate subnets (hq tcp)
+5,Allow,-,-,10.0.1.0/24,10.0.0.2/32,6,-,853,hq2 should only be accessible to the 5 corporate subnets (us tcp)
+5,Allow,-,-,10.0.2.0/24,10.0.0.2/32,6,-,853,hq2 should only be accessible to the 5 corporate subnets (in tcp)
+5,Allow,-,-,10.0.3.0/24,10.0.0.2/32,6,-,853,hq2 should only be accessible to the 5 corporate subnets (cn tcp)
+5,Allow,-,-,10.0.4.0/24,10.0.0.2/32,6,-,853,hq2 should only be accessible to the 5 corporate subnets (uk tcp)
+5,Block,-,-,-,10.0.0.2/32,6,-,53,hq2 should only be accessible to the 5 corporate subnets (tcp)
+5,Allow,-,-,10.0.0.0/24,10.0.0.2/32,6,-,53,hq2 should only be accessible to the 5 corporate subnets (hq tcp)
+5,Allow,-,-,10.0.1.0/24,10.0.0.2/32,6,-,53,hq2 should only be accessible to the 5 corporate subnets (us tcp)
+5,Allow,-,-,10.0.2.0/24,10.0.0.2/32,6,-,53,hq2 should only be accessible to the 5 corporate subnets (in tcp)
+5,Allow,-,-,10.0.3.0/24,10.0.0.2/32,6,-,53,hq2 should only be accessible to the 5 corporate subnets (cn tcp)
+5,Allow,-,-,10.0.4.0/24,10.0.0.2/32,6,-,53,hq2 should only be accessible to the 5 corporate subnets (uk tcp)
+6,Block,-,-,-,10.0.0.2/32,17,-,853,hq2 should only be accessible to the 5 corporate subnets (udp)
+6,Allow,-,-,10.0.0.0/24,10.0.0.2/32,17,-,853,hq2 should only be accessible to the 5 corporate subnets (hq udp)
+6,Allow,-,-,10.0.1.0/24,10.0.0.2/32,17,-,853,hq2 should only be accessible to the 5 corporate subnets (us udp)
+6,Allow,-,-,10.0.2.0/24,10.0.0.2/32,17,-,853,hq2 should only be accessible to the 5 corporate subnets (in udp)
+6,Allow,-,-,10.0.3.0/24,10.0.0.2/32,17,-,853,hq2 should only be accessible to the 5 corporate subnets (cn udp)
+6,Allow,-,-,10.0.4.0/24,10.0.0.2/32,17,-,853,hq2 should only be accessible to the 5 corporate subnets (uk udp)
+6,Block,-,-,-,10.0.0.2/32,17,-,53,hq2 should only be accessible to the 5 corporate subnets (udp)
+6,Allow,-,-,10.0.0.0/24,10.0.0.2/32,17,-,53,hq2 should only be accessible to the 5 corporate subnets (hq udp)
+6,Allow,-,-,10.0.1.0/24,10.0.0.2/32,17,-,53,hq2 should only be accessible to the 5 corporate subnets (us udp)
+6,Allow,-,-,10.0.2.0/24,10.0.0.2/32,17,-,53,hq2 should only be accessible to the 5 corporate subnets (in udp)
+6,Allow,-,-,10.0.3.0/24,10.0.0.2/32,17,-,53,hq2 should only be accessible to the 5 corporate subnets (cn udp)
+6,Allow,-,-,10.0.4.0/24,10.0.0.2/32,17,-,53,hq2 should only be accessible to the 5 corporate subnets (uk udp)
+7,Block,-,-,-,10.0.0.60/32,6,-,1194,No other hostsin the worldshould be able to accessthe OpenVPN server on hq3 (tcp)
+8,Block,-,-,-,10.0.0.60/32,17,-,1194,No other hostsin the worldshould be able to accessthe OpenVPN server on hq3 (udp)
+9,Allow,00:00:00:03:02:1e,00:00:00:00:02:1e,10.0.1.33/32,10.0.0.60/32,6,-,1194,us3 access to hq3(tcp)
+10,Allow,00:00:00:03:02:1e,00:00:00:00:02:1e,10.0.1.33/32,10.0.0.60/32,17,-,1194,us3 access to hq3(udp)
+11,Allow,00:00:00:02:02:1e,-,10.0.4.129/32,10.0.0.60/32,6,-,1194,uk3 access to hq3(tcp)
+12,Allow,-,00:00:00:00:02:1e,10.0.4.129/32,10.0.0.60/32,17,-,1194,uk3 access to hq3(udp)
+13,Allow,00:00:00:08:02:1e,-,10.0.2.3/32,10.0.0.60/32,6,-,1194,in3 access to hq3(tcp)
+14,Allow,00:00:00:08:02:1e,-,10.0.2.3/32,10.0.0.60/32,17,-,1194,in3 access to hq3(udp)
+15,Allow,00:00:00:0d:02:1e,00:00:00:00:02:1e,10.0.3.3/32,10.0.0.60/32,6,-,1194,cn3 access to hq3(tcp)
+16,Allow,-,-,10.0.3.3/32,10.0.0.60/32,17,-,1194,cn3 access to hq3(udp)
+17,Allow,-,-,-,10.0.0.0/24,1,-,-,hq subnet can be pinged by anyone
+18,Block,-,-,-,10.0.1.0/24,1,-,-,block world ping us
+19,Block,-,-,-,10.0.4.0/24,1,-,-,block world ping uk
+20,Block,-,-,-,10.0.3.0/24,1,-,-,block world ping cn
+21,Block,-,-,-,10.0.2.0/24,1,-,-,block world ping in
+22,Allow,-,-,10.0.4.0/24,10.0.4.0/24,1,-,-,allow uk ping uk
+23,Allow,-,-,10.0.1.0/24,10.0.1.0/24,1,-,-,allow us ping us
+24,Allow,-,-,10.0.2.0/24,10.0.2.0/24,1,-,-,allow in ping in
+25,Allow,-,-,10.0.3.0/24,10.0.3.0/24,1,-,-,allow cn ping cn
+34,Block,-,-,-,10.0.0.0/24,6,-,5900,no computer on any network should be able to access a remote desktop connection (hq tcp/vnc)
+35,Block,-,-,-,10.0.0.0/24,17,-,5900,no computer on any network should be able to access a remote desktop connection (hq udp/vnc)
+34,Block,-,-,-,10.0.0.0/24,6,-,3389,no computer on any network should be able to access a remote desktop connection (hq tcp/rdp)
+35,Block,-,-,-,10.0.0.0/24,17,-,3389,no computer on any network should be able to access a remote desktop connection (hq udp/rdp)
+34,Block,-,-,-,10.0.1.0/24,6,-,5900,no computer on any network should be able to access a remote desktop connection (us tcp/vnc)
+35,Block,-,-,-,10.0.1.0/24,17,-,5900,no computer on any network should be able to access a remote desktop connection (us udp/vnc)
+34,Block,-,-,-,10.0.1.0/24,6,-,3389,no computer on any network should be able to access a remote desktop connection (us tcp/rdp)
+35,Block,-,-,-,10.0.1.0/24,17,-,3389,no computer on any network should be able to access a remote desktop connection (us udp/rdp)
+34,Block,-,-,-,10.0.2.0/24,6,-,5900,no computer on any network should be able to access a remote desktop connection (in tcp/vnc)
+35,Block,-,-,-,10.0.2.0/24,17,-,5900,no computer on any network should be able to access a remote desktop connection (in udp/vnc)
+34,Block,-,-,-,10.0.2.0/24,6,-,3389,no computer on any network should be able to access a remote desktop connection (in tcp/rdp)
+35,Block,-,-,-,10.0.2.0/24,17,-,3389,no computer on any network should be able to access a remote desktop connection (in udp/rdp)
+34,Block,-,-,-,10.0.3.0/24,6,-,5900,no computer on any network should be able to access a remote desktop connection (cn tcp/vnc)
+35,Block,-,-,-,10.0.3.0/24,17,-,5900,no computer on any network should be able to access a remote desktop connection (cn udp/vnc)
+34,Block,-,-,-,10.0.3.0/24,6,-,3389,no computer on any network should be able to access a remote desktop connection (cn tcp/rdp)
+35,Block,-,-,-,10.0.3.0/24,17,-,3389,no computer on any network should be able to access a remote desktop connection (cn udp/rdp)
+34,Block,-,-,-,10.0.4.0/24,6,-,5900,no computer on any network should be able to access a remote desktop connection (uk tcp/vnc)
+35,Block,-,-,-,10.0.4.0/24,17,-,5900,no computer on any network should be able to access a remote desktop connection (uk udp/vnc)
+34,Block,-,-,-,10.0.4.0/24,6,-,3389,no computer on any network should be able to access a remote desktop connection (uk tcp/rd[])
+35,Block,-,-,-,10.0.4.0/24,17,-,3389,no computer on any network should be able to access a remote desktop connection (uk udp/rdp)
+36,Block,-,-,10.0.4.128/32,10.0.1.33/32,6,-,8500,block uk2 to us3 port 8500(tcp)
+37,Block,-,-,10.0.4.128/32,10.0.1.33/32,17,-,8500,block uk2 to us3 port 8500(udp)
+38,Block,-,-,10.0.4.129/32,10.0.1.33/32,6,-,8500,block uk3 to us3 port 8500(tcp)
+39,Block,-,-,10.0.4.129/32,10.0.1.33/32,17,-,8500,block uk3 to us3 port 8500(udp)
+40,Block,-,-,10.0.4.130/32,10.0.1.33/32,6,-,8500,block uk4 to us3 port 8500(tcp)
+41,Block,-,-,10.0.4.130/32,10.0.1.33/32,17,-,8500,block uk4 to us3 port 8500(udp)
+42,Block,-,-,10.0.4.131/32,10.0.1.33/32,6,-,8500,block uk5 to us3 port 8500(tcp)
+43,Block,-,-,10.0.4.131/32,10.0.1.33/32,17,-,8500,block uk5 to us3 port 8500(udp)
+44,Block,-,-,10.0.2.126/32,10.0.1.33/32,6,-,8500,block in4 to us3 port 8500(tcp)
+45,Block,-,-,10.0.2.126/32,10.0.1.33/32,17,-,8500,block in4 to us3 port 8500(udp)
+46,Block,-,-,10.0.2.125/32,10.0.1.33/32,6,-,8500,block in5 to us3 port 8500(tcp)
+47,Block,-,-,10.0.2.125/32,10.0.1.33/32,17,-,8500,block in5 to us3 port 8500(udp)
+48,Block,-,-,10.0.1.125/32,10.0.1.33/32,6,-,8500,block us5 to us3 port 8500(tcp)
+49,Block,-,-,10.0.1.125/32,10.0.1.33/32,17,-,8500,block us5 to us3 port 8500(udp)
+50,Block,-,-,10.0.0.220/32,10.0.1.33/32,6,-,8500,block hq5 to us3 port 8500(tcp)
+51,Block,-,-,10.0.0.220/32,10.0.1.33/32,17,-,8500,block hq5 to us3 port 8500(udp)
+52,Block,-,-,10.0.4.128/32,10.0.1.34/32,6,-,8500,block uk2 to us4 port 8500(tcp)
+53,Block,-,-,10.0.4.128/32,10.0.1.34/32,17,-,8500,block uk2 to us4 port 8500(udp)
+54,Block,-,-,10.0.4.129/32,10.0.1.34/32,6,-,8500,block uk3 to us4 port 8500(tcp)
+55,Block,-,-,10.0.4.129/32,10.0.1.34/32,17,-,8500,block uk3 to us4 port 8500(udp)
+56,Block,-,-,10.0.4.130/32,10.0.1.34/32,6,-,8500,block uk4 to us4 port 8500(tcp)
+57,Block,-,-,10.0.4.130/32,10.0.1.34/32,17,-,8500,block uk4 to us4 port 8500(udp)
+58,Block,-,-,10.0.4.131/32,10.0.1.34/32,6,-,8500,block uk5 to us4 port 8500(tcp)
+59,Block,-,-,10.0.4.131/32,10.0.1.34/32,17,-,8500,block uk5 to us4 port 8500(udp)
+60,Block,-,-,10.0.2.126/32,10.0.1.34/32,6,-,8500,block in4 to us4 port 8500(tcp)
+61,Block,-,-,10.0.2.126/32,10.0.1.34/32,17,-,8500,block in4 to us4 port 8500(udp)
+62,Block,-,-,10.0.2.125/32,10.0.1.34/32,6,-,8500,block in5 to us4 port 8500(tcp)
+63,Block,-,-,10.0.2.125/32,10.0.1.34/32,17,-,8500,block in5 to us4 port 8500(udp)
+64,Block,-,-,10.0.1.125/32,10.0.1.34/32,6,-,8500,block us5 to us4 port 8500(tcp)
+65,Block,-,-,10.0.1.125/32,10.0.1.34/32,17,-,8500,block us5 to us4 port 8500(udp)
+66,Block,-,-,10.0.0.220/32,10.0.1.34/32,6,-,8500,block hq5 to us4 port 8500(tcp)
+67,Block,-,-,10.0.0.220/32,10.0.1.34/32,17,-,8500,block hq5 to us4 port 8500(udp)
+68,Block,-,-,-,10.0.0.0/24,6,-,137,block tcp connection to hq via 137
+68,Block,-,-,-,10.0.0.0/24,17,-,137,block udp connection to hq via 137
+68,Block,-,-,-,10.0.0.0/24,17,-,138,block udp connection to hq via 138
+68,Block,-,-,-,10.0.0.0/24,6,-,139,block tcp connection to hq via 139
+70,Block,-,-,-,10.0.1.0/24,6,-,137,block tcp connection to us via 137
+70,Block,-,-,-,10.0.1.0/24,17,-,137,block udp connection to us via 137
+70,Block,-,-,-,10.0.1.0/24,17,-,138,block udp connection to us via 138
+70,Block,-,-,-,10.0.1.0/24,6,-,139,block tcp connection to us via 139
+72,Block,-,-,-,10.0.2.0/24,6,-,137,block tcp connection to in via 137
+72,Block,-,-,-,10.0.2.0/24,17,-,137,block udp connection to in via 137
+72,Block,-,-,-,10.0.2.0/24,17,-,138,block udp connection to in via 138
+72,Block,-,-,-,10.0.2.0/24,6,-,139,block tcp connection to in via 139
+74,Block,-,-,-,10.0.3.0/24,6,-,137,block tcp connection to cn via 137
+74,Block,-,-,-,10.0.3.0/24,17,-,137,block udp connection to cn via 137
+74,Block,-,-,-,10.0.3.0/24,17,-,138,block udp connection to cn via 138
+74,Block,-,-,-,10.0.3.0/24,6,-,139,block tcp connection to cn via 139
+76,Block,-,-,-,10.0.4.0/24,6,-,137,block tcp connection to cn via 137
+76,Block,-,-,-,10.0.4.0/24,17,-,137,block udp connection to cn via 137
+76,Block,-,-,-,10.0.4.0/24,17,-,138,block udp connection to cn via 138
+77,Block,-,-,-,10.0.4.0/24,6,-,139,block tcp connection to cn via 139
+78,Block,-,-,-,10.0.0.0/24,47,-,-,block gre hq
+79,Block,-,-,-,10.0.1.0/24,47,-,-,block gre us
+80,Block,-,-,-,10.0.2.0/24,47,-,-,block gre in
+81,Block,-,-,-,10.0.3.0/24,47,-,-,block gre cn
+82,Block,-,-,-,10.0.4.0/24,47,-,-,block gre uk
